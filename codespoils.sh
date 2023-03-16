@@ -67,7 +67,7 @@ while :; do
         warrior=$2
         shift
       else
-        echo "No USER"
+        echo "$1 No USER"
         exit
       fi
       ;;
@@ -95,6 +95,9 @@ while :; do
       printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
       ;;
     *)
+      if [[ -z "${warrior}" ]]; then
+        warrior=$1
+      fi
       break
   esac
   shift

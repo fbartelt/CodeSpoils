@@ -31,7 +31,7 @@ declare -A rank_map=(
 kata_score=(1097 404 149 55 21 8 3 2)
 kyu_ceiling=1
 
-warrior_data=$(source src/get_rank.sh $1)
+warrior_data=$(source src/rank_overall.sh $1)
 warrior_score=$(echo ${warrior_data} | sed -E 's/.*score=([0-9]+).*/\1/')
 warrior_rank=$(echo ${warrior_data} | sed -E 's/.*rank=(-?[0-9]+).*/\1/')
 warrior_rank_name=$(echo ${warrior_data} | \
@@ -39,7 +39,7 @@ warrior_rank_name=$(echo ${warrior_data} | \
 
 if [[ $# -gt 1 ]]; then
   if [[ "$2" != "ignore" ]]; then
-    warrior_data=$(source src/get_languages.sh $1 | jq -r '.' | tr '\n' ';')
+    warrior_data=$(source src/rank_language.sh $1 | jq -r '.' | tr '\n' ';')
     warrior_score=$(echo ${warrior_data} | sed -E 's/.*?'$2'[^;]*?score=([0-9]+);.*?/\1/')
     warrior_rank=$(echo ${warrior_data} | sed -E 's/.*?'$2'[^;]*?rank=(-?[1-8]+).*;.*?/\1/')
     warrior_rank_name=$(echo ${warrior_data} | \
