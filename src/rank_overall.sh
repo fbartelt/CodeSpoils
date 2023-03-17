@@ -1,3 +1,4 @@
+#!/bin/bash
 spacing="  "
 # echo -e "\e[1;91m$1\e[0m"
 # jq '. | del(.color, .rank) | . |= with_entries(.key |= sub("^name$"; "rank"))' | \
