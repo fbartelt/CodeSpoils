@@ -7,6 +7,6 @@
 - [x] Head-to-head comparison
     - [ ] Prettify
 - [ ] Find missing files for completed katas 
-- [ ] Create file names for the last N completed katas
+- [x] Create file names for the last N completed katas
 - [x] Create a solved kata table per language
 - [x] Create a solved kata table per kyu for each language

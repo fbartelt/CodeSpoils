@@ -5,6 +5,7 @@ declare -A subscript_array=(
   [2]="./src/compare_h2h.sh"
   [3]="./src/kata_per_lang.sh"
   [4]="./src/kata_per_kyu.sh"
+  [5]="./src/get_file_names.sh"
 )
 
 warrior=""
@@ -106,7 +107,14 @@ while :; do
       fi
       ;;
     -f|--file-names)
-      echo "TODO: Create names for last N completed kata"
+      option=5
+      if [ "$2" ]; then
+        warrior=$2
+        shift
+      else
+        echo "argument USER required"
+        exit
+      fi
       ;;
     -s|--search-missing)
       echo "TODO: Search missing files"
