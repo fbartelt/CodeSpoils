@@ -6,6 +6,7 @@ declare -A subscript_array=(
   [3]="./src/kata_per_lang.sh"
   [4]="./src/kata_per_kyu.sh"
   [5]="./src/get_file_names.sh"
+  [6]="./src/search_missing.sh"
 )
 
 warrior=""
@@ -17,23 +18,23 @@ option_n=1
 # Help
 ################################################################################
 help () {
-  echo "Usage: codespoils [OPERATION] USERNAME [USERNAME2] [OPTIONS]"
+  echo "Usage: codespoils [OPERATION] USER [USER2|PATH] [OPTIONS]"
   echo 
   echo "OPERATIONS:"
-  echo "  -h, -?, --help             display this help and exit"
-  echo "  -p, --profile              show user profile: overall rank and"
+  echo "  -h, -?, --help             Display this help and exit"
+  echo "  -p, --profile              Show USER profile: overall rank and"
   echo "                               languages rank"
-  echo "  -r, --rank-up              show minimum amount of kata in order to"
+  echo "  -r, --rank-up              Show minimum amount of kata in order to"
   echo "                               rank-up (overall or LANGUAGE)"
-  echo "  -c, --compare              head-to-head comparison with USERNAME2"
-  echo "  -t, --table-lang           create table of completed kata per"
+  echo "  -c, --compare              Head-to-head comparison with USER2"
+  echo "  -t, --table-lang           Create table of completed kata per"
   echo "                               language"
-  echo "  -k, --table-kyu            create table of completed kata per"
+  echo "  -k, --table-kyu            Create table of completed kata per"
   echo "                               kyu per language"
-  echo "  -f, --file-names           create filenames for the last N"
+  echo "  -f, --file-names           Create filenames for the last N"
   echo "                               completed katas"
-  echo "  -s, --search-missing       search for missing files for completed"
-  echo "                               katas"
+  echo "  -s, --search-missing       Search for missing files for completed"
+  echo "                               katas in PATH"
   echo
   echo "OPTIONS:"
   echo "  -l, --language LANGUAGE    Specify programming language"
@@ -46,8 +47,7 @@ help () {
 while :; do
   case $1 in
     -h|-\?|--help)
-      help
-      exit
+      help; exit
       ;;
     -p|--profile)
       option=0
@@ -55,8 +55,7 @@ while :; do
         warrior=$2
         shift
       else
-        echo "argument USER required"
-        exit
+        echo "argument USER required"; exit
       fi
       ;;
     -r|--rank-up)
@@ -65,8 +64,7 @@ while :; do
         warrior=$2
         shift
       else
-        echo "argument USER required"
-        exit
+        echo "argument USER required"; exit
       fi
       ;;
     -c|--compare)
@@ -77,13 +75,11 @@ while :; do
           second_arg=$3
           shift
         else
-          echo "option requires an argument USER2 -- '$1'"
-          exit
+          echo "option requires an argument USER2 -- '$1'"; exit
         fi
         shift
       else
-        echo "argument USER required"
-        exit
+        echo "argument USER required"; exit
       fi
       ;;
     -t|--table-lang)
@@ -92,8 +88,7 @@ while :; do
         warrior=$2
         shift
       else
-        echo "argument USER required"
-        exit
+        echo "argument USER required"; exit
       fi
       ;;
     -k|--table-kyu)
@@ -102,8 +97,7 @@ while :; do
         warrior=$2
         shift
       else
-        echo "argument USER required"
-        exit
+        echo "argument USER required"; exit
       fi
       ;;
     -f|--file-names)
@@ -112,12 +106,24 @@ while :; do
         warrior=$2
         shift
       else
-        echo "argument USER required"
-        exit
+        echo "argument USER required"; exit
       fi
       ;;
     -s|--search-missing)
-      echo "TODO: Search missing files"
+      option=6
+      if [ "$2" ]; then
+        warrior=$2
+        if [ "$3" ]; then
+          second_arg=$3
+          shift
+        else
+          second_arg="."
+          echo "WARN: No PATH provided for $1. Using '.'."
+        fi
+        shift
+      else
+        echo "argument USER required"; exit
+      fi
       ;;
     -l|--language)
       if [ "$2" ]; then
@@ -154,5 +160,5 @@ done
 if [[ ${warrior} || $1 ]]; then
   source ${subscript_array[${option}]} ${warrior} ${second_arg} ${option_n}
 else
-  echo "argument USER required"
+  echo "argument USER required"; exit
 fi
