@@ -1,9 +1,9 @@
 #!/bin/bash
 source ./config.sh
 
-rank_overall=$(source src/rank_overall.sh $1 | \
+rank_overall=$(source src/rank_overall.sh "$1" | \
   sed -E 's/.*name=([1-8])\s+(kyu|dan),\s+score=([0-9]+)/\1\2 (\3)/g')
-languages=$(source src/rank_language.sh $1 | jq -r | \
+languages=$(source src/rank_language.sh "$1" | \
   sed -E 's/:.*?name=([1-8])\s+(kyu|dan),\s+score=([0-9]+)/: \1\2 (\3);/')
 
 ndash=$(echo -e ${languages} | tr ';' '\n' | column -t | \
