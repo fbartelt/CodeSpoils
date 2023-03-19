@@ -397,7 +397,10 @@ kata_per_lang () {
   table_lang="${table_lang}$(echo ${lang_json} | \
     jq 'to_entries | .[]' | \
     jq -r '. | "| \(.key | (.[:1]|ascii_upcase) + .[1:]) | \(.value) |"')"
-  echo -e "${table_lang}"
+  
+  if [[ "$2" != "silent" ]]; then
+    echo -e "${table_lang}"
+  fi
 }
 
 kata_info () {
@@ -455,7 +458,9 @@ kata_per_kyu () {
       sed -E 's/kyu|dan//g' | sed -E 's/beta/\$\\\\beta\$/g')\n"
   done
 
-  echo -e "${table_kyu}"
+  if [[ "$2" != "silent" ]]; then
+    echo -e "${table_kyu}"
+  fi
 }
 
 iterate_katas_f () {
@@ -580,7 +585,25 @@ generate_icons () {
 
 # -m|--make-readme operation. args:[USER]
 make_readme () {
-  echo "readme"
+  printf '%s%s\n' "<!-- Please do not modify this file directly as it may be" \
+    "overwritten by future updates. -->" > autoREADME.md
+  echo "# CodeWars" >> autoREADME.md
+  printf "\n${description_repo}\n" >> autoREADME.md
+  printf '\n%s%s\n\n' "[![My Profile](https://www.codewars.com/users/$1/" \
+    "badges/${badge_size})](https://www.codewars.com/users/$1)" >> autoREADME.md
+  generate_icons "$1" | tr '\n' ' ' >> autoREADME.md
+  printf "\n\n## ${table_lang_title}\n\n" >> autoREADME.md
+  kata_per_lang "$1" "silent"
+  printf "${table_lang}" >> autoREADME.md
+  printf "\n\n## ${table_kyu_title}\n" >> autoREADME.md
+  kata_per_kyu "$1" "silent"
+  printf "${table_kyu}" >> autoREADME.md
+  printf '\n%s%s%s\n\n' "<small><sup><em>This README was automatically generated " \
+    "by [CodeSpoils](https://github.com/fbartelt/CodeSpoils)." \
+    "</small></sup></em>" >> autoREADME.md
+  printf '%s%s' "<!-- Please do not modify this file directly as it may be" \
+    "overwritten by future updates. -->" >> autoREADME.md
+  printf "\nCreated autoREADME.md!"
 }
 
 ################################################################################

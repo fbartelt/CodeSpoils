@@ -70,6 +70,15 @@ declare -A extension_map=(
   ["typescript"]="ts"
   ["vb"]="vb"
 )
+#################################### README ####################################
+description_repo="Welcome to my repository for storing my solutions to CodeWars\
+katas. The purpose of this repository is to track my progress as I work to \
+improve my skills in Python, Elixir, and Rust. Please note that this \
+repository is not intended to be used for cheating or copying solutions, but \
+rather to showcase my personal progress and learning."
+badge_size="large"
+table_lang_title="Amount of completed Katas per Language"
+table_kyu_title="Amount of completed Katas per Kyu"
 #################################### ICONS ####################################
 bgcolor="\%23181717"
 logocolor="white"
