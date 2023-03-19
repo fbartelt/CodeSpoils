@@ -13,10 +13,14 @@ help () {
   echo "  -r, --rank-up              Show minimum amount of kata in order to"
   echo "                               rank-up (overall or LANGUAGE)"
   echo "  -c, --compare              Head-to-head comparison with USER2"
+  echo "  -g, --generate-icons       Generate icons for language ranks"
   echo "  -t, --table-lang           Create table of completed kata per"
   echo "                               language"
   echo "  -k, --table-kyu            Create table of completed kata per"
   echo "                               kyu per language"
+  echo "  -m, --make-readme          Create auto-generated README file with"
+  echo "                               the tables created by -t and -k options"
+  echo "                               and icons created by -g option"
   echo "  -f, --file-names           Create filenames for the last N"
   echo "                               completed katas"
   echo "  -s, --search-missing       Search for missing files for completed"
@@ -73,6 +77,15 @@ while :; do
         echo "argument USER required"; exit
       fi
       ;;
+    -g|--generate-icons)
+      option=7
+      if [ "$2" ]; then
+        warrior=$2
+        shift
+      else
+        echo "argument USER required"; exit
+      fi
+      ;;
     -t|--table-lang)
       option=3
       if [ "$2" ]; then
@@ -84,6 +97,15 @@ while :; do
       ;;
     -k|--table-kyu)
       option=4
+      if [ "$2" ]; then
+        warrior=$2
+        shift
+      else
+        echo "argument USER required"; exit
+      fi
+      ;;
+    -m|--make-readme)
+      option=8
       if [ "$2" ]; then
         warrior=$2
         shift
@@ -149,6 +171,8 @@ while :; do
 done
 
 ################################## VARIABLES ##################################
+table_kyu=""
+table_lang=""
 
 declare -A subscript_array=(
   [0]="get_profile"
@@ -158,6 +182,8 @@ declare -A subscript_array=(
   [4]="kata_per_kyu"
   [5]="get_file_names"
   [6]="search_missing"
+  [7]="generate_icons"
+  [8]="make_readme"
 )
 
 declare -A rank_names=(
@@ -367,11 +393,11 @@ kata_per_lang () {
     sed '$s/,$//g'  | sed '$a }' | jq -r)
   iterate_katas_l "${page0}"
   iterate_pages_l
-  table="| Language | Total |\n| :--: | :---: |\n"
-  table="${table}$(echo ${lang_json} | \
+  table_lang="| Language | Total |\n| :--: | :---: |\n"
+  table_lang="${table_lang}$(echo ${lang_json} | \
     jq 'to_entries | .[]' | \
     jq -r '. | "| \(.key | (.[:1]|ascii_upcase) + .[1:]) | \(.value) |"')"
-  echo -e "${table}"
+  echo -e "${table_lang}"
 }
 
 kata_info () {
@@ -381,7 +407,7 @@ kata_info () {
 
 iterate_katas_k () {
   # kata_per_kyu version
-  page_items=$(($(echo $1 | jq -r '.totalItems') - 1))
+  page_items=$(($(echo $1 | jq -r '.data | length') - 1))
   for i in $(seq 0 ${page_items}); do
     show_progress "${acc_items}" "${total_items}" "Kata per kyu per Language"
     kata=$(echo $1 | jq -r '.data['${i}']')
@@ -421,15 +447,15 @@ kata_per_kyu () {
     sed '1i {' | sed '$s/,$//g'  | sed '$a }' | jq -r)
   iterate_katas_k "${page0}"
   iterate_pages_k
-  table=""
+  table_kyu=""
   for key in $(echo "${lang_json}" | jq -r 'keys_unsorted[]'); do
-    table="${table}\n### ${key^}\n\n| Kyu  | Total |\n| :--: | :---: |\n"
-    table="${table}$(echo -e "${lang_json}" | \
+    table_kyu="${table_kyu}\n### ${key^}\n\n| Kyu  | Total |\n| :--: | :---: |\n"
+    table_kyu="${table_kyu}$(echo -e "${lang_json}" | \
       jq -r '.'${key}' | to_entries | .[] | "| \(.key) | \(.value) |"' | \
       sed -E 's/kyu|dan//g' | sed -E 's/beta/\$\\\\beta\$/g')\n"
   done
 
-  echo -e "${table}"
+  echo -e "${table_kyu}"
 }
 
 iterate_katas_f () {
@@ -527,6 +553,34 @@ search_missing () {
   echo -e "MISSING FILES:\n"
   iterate_katas_s "${page0}"
   iterate_pages_s
+}
+
+# -g|--generate-icons operation. args:[USER]
+generate_icons () {
+  rep_icon=$(echo ${!iconMap[*]} | sed 's/ /|/g')
+  html_icon=$(rank_language $1 | \
+    sed -E 's/(\w+).*([0-9])\s(kyu|dan).*$/\2\3-'${bgcolor}'.svg\&logo=\1/g' | \
+    sed -E 's/(.*\.svg)(\&logo=.*)/\1?\&style=for-the-badge\2/g' | \
+    sed -E 's/(.*)/<img src=\"https:\/\/img.shields.io\/badge\/\1/g' | \
+    sed -E 's/(.*)/\1\&logoColor='${logocolor}'\&logoWidth=/g' | \
+    sed -E 's/(.*)/\1'${logoWidth}'\" height=\"'${height}'\"\/>/g')
+  final_icons=""
+
+  for html_part in ${html_icon}; do
+    if [[ ${html_part} =~ (.*logo=)(${rep_icon})(.*$) ]]; then
+      mapped_icon="${iconMap[${BASH_REMATCH[2]}]}"
+      final_icons=${final_icons}" "${BASH_REMATCH[1]}${mapped_icon}${BASH_REMATCH[3]}
+    else
+      final_icons=${final_icons}" "${html_part}
+    fi
+  done
+
+  echo ${final_icons} | sed 's/> />\n/g'
+}
+
+# -m|--make-readme operation. args:[USER]
+make_readme () {
+  echo "readme"
 }
 
 ################################################################################

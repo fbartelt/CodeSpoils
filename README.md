@@ -12,4 +12,7 @@
 - [x] Create file names for the last N completed katas
 - [x] Create a solved kata table per language
 - [x] Create a solved kata table per kyu for each language
-    - [ ] Fix progress bar bug
+    - [x] Fix progress bar bug
+- [x] Generate language rank icons
+- [ ] Generate README for CodeWars repo
+- [ ] Improve this README
